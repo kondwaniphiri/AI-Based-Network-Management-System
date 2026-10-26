@@ -1,0 +1,29 @@
+name: Software checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install application dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Build native gateway codec
+        run: |
+          mkdir -p build/native
+          gcc -std=c11 -Wall -Wextra -Werror -shared -fPIC firmware/esp32_gateway/main/snmp_codec.c -o build/native/snmp_codec.so
+      - name: Run Python and native checks
+        env:
+          IOT_SNMP_TEST_LIBRARY: ${{ github.workspace }}/build/native/snmp_codec.so
+        run: python -m unittest discover -s tests -q
+      - name: Run dashboard checks
+        run: node --test tests/dashboard.test.cjs

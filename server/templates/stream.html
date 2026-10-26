@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamNet &ndash; Protocol Stream Lab</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #141414;
+        color: #e5e5e5;
+        font-family: "Segoe UI", Arial, sans-serif;
+        min-height: 100vh;
+      }
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 0.95) 0%,
+          transparent 100%
+        );
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 18px 48px;
+      }
+      .logo {
+        color: #e50914;
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -1px;
+      }
+      nav a {
+        color: #e5e5e5;
+        text-decoration: none;
+        font-size: 14px;
+        opacity: 0.75;
+        transition: opacity 0.2s;
+      }
+      nav a:hover {
+        opacity: 1;
+      }
+      nav a.active {
+        opacity: 1;
+        font-weight: 600;
+      }
+      .nav-right {
+        margin-left: auto;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .hero {
+        min-height: 72vh;
+        padding-top: 80px;
+        background:
+          linear-gradient(to right, rgba(0, 0, 0, 0.85) 35%, transparent 75%),
+          linear-gradient(to top, #141414 0%, transparent 35%),
+          radial-gradient(ellipse at 70% 50%, #1a1a4e 0%, #0d0d0d 60%);
+        display: flex;
+        align-items: flex-end;
+        padding-left: 48px;
+        padding-bottom: 60px;
+      }
+      .hero-content {
+        max-width: 520px;
+      }
+      .hero-badge {
+        display: inline-block;
+        background: #e50914;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 3px;
+        margin-bottom: 14px;
+      }
+      .hero-title {
+        font-size: 52px;
+        font-weight: 800;
+        line-height: 1.05;
+        margin-bottom: 14px;
+      }
+      .hero-meta {
+        font-size: 13px;
+        color: #aaa;
+        margin-bottom: 12px;
+      }
+      .hero-desc {
+        font-size: 15px;
+        color: #ccc;
+        line-height: 1.65;
+        margin-bottom: 28px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 28px;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 700;
+        border-radius: 5px;
+        text-decoration: none;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: #e50914;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #c2050f;
+      }
+      .btn-secondary {
+        background: rgba(109, 109, 110, 0.65);
+        color: #fff;
+      }
+      .btn-secondary:hover {
+        background: rgba(109, 109, 110, 0.45);
+      }
+      .player-section {
+        background: #0d0d0d;
+        border-top: 1px solid #2a2a2a;
+        padding: 36px 48px;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+      }
+      .stream-panel {
+        background: #1c1c1c;
+        border: 1px solid #2e2e2e;
+        border-radius: 10px;
+        padding: 28px 32px;
+        max-width: 780px;
+      }
+      .stream-title {
+        font-size: 19px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .stream-sub {
+        font-size: 13px;
+        color: #777;
+        margin-bottom: 12px;
+      }
+      .proto-info {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .proto-pill {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 12px;
+        letter-spacing: 0.5px;
+      }
+      .proto-tcp {
+        background: rgba(124, 109, 251, 0.2);
+        color: #7c6dfb;
+        border: 1px solid rgba(124, 109, 251, 0.4);
+      }
+      .proto-udp {
+        background: rgba(251, 146, 60, 0.2);
+        color: #fb923c;
+        border: 1px solid rgba(251, 146, 60, 0.4);
+      }
+      .proto-mix {
+        background: rgba(34, 211, 238, 0.2);
+        color: #22d3ee;
+        border: 1px solid rgba(34, 211, 238, 0.4);
+      }
+      .proto-rang {
+        background: rgba(74, 222, 128, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(74, 222, 128, 0.4);
+      }
+      .progress-wrap {
+        background: #2e2e2e;
+        border-radius: 3px;
+        height: 5px;
+        margin-bottom: 14px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 5px;
+        width: 0%;
+        background: linear-gradient(to right, #e50914, #ff6b6b);
+        border-radius: 3px;
+        transition: width 0.25s ease;
+      }
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #2e2e2e;
+        color: #888;
+      }
+      .badge::before {
+        content: "●";
+        font-size: 8px;
+      }
+      .badge.idle {
+        background: #2e2e2e;
+        color: #888;
+      }
+      .badge.buffering {
+        background: #4a3800;
+        color: #f4a800;
+      }
+      .badge.buffering::before {
+        animation: pulse 0.8s infinite;
+      }
+      .badge.streaming {
+        background: #3a0000;
+        color: #e50914;
+      }
+      .badge.streaming::before {
+        animation: pulse 1s infinite;
+      }
+      .badge.done {
+        background: #0d3a0d;
+        color: #4caf50;
+      }
+      .badge.stopped {
+        background: #2e2e2e;
+        color: #888;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+      #stats {
+        font-size: 13px;
+        color: #888;
+        font-variant-numeric: tabular-nums;
+      }
+      .ctl-row {
+        display: flex;
+        gap: 10px;
+      }
+      .ctl-btn {
+        padding: 10px 22px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      .ctl-btn:active {
+        transform: scale(0.96);
+      }
+      #startBtn {
+        background: #e50914;
+        color: #fff;
+      }
+      #startBtn:hover {
+        background: #c2050f;
+      }
+      #stopBtn {
+        background: #3a3a3a;
+        color: #ccc;
+        display: none;
+      }
+      #stopBtn:hover {
+        background: #4a4a4a;
+      }
+      .grid-section {
+        padding: 36px 48px 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .card {
+        background: #1f1f1f;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s,
+          border-color 0.2s;
+        position: relative;
+      }
+      .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+        z-index: 10;
+      }
+      .card.active-card {
+        border-color: #e50914;
+      }
+      .card-thumb {
+        height: 110px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+      }
+      .card::after {
+        content: "▶";
+        position: absolute;
+        top: 33px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 28px;
+        color: rgba(255, 255, 255, 0);
+        transition: color 0.2s;
+      }
+      .card:hover::after {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .card-info {
+        padding: 10px 12px 12px;
+      }
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+      .card-sub {
+        font-size: 11px;
+        color: #777;
+      }
+      footer {
+        text-align: center;
+        padding: 28px 24px;
+        color: #444;
+        font-size: 12px;
+        border-top: 1px solid #1e1e1e;
+      }
+      footer a {
+        color: #888;
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: #e50914;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <span class="logo">StreamNet</span>
+      <a href="/stream" class="active">Streams</a>
+      <span class="nav-right">
+        <a href="/browse">&#128240; Blog</a>
+        <a href="/dashboard" style="color: #4ade80">&#128202; Dashboard</a>
+      </span>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-content">
+        <span class="hero-badge">Local Network &middot; Protocol Testing</span>
+        <div class="hero-title">Network Protocol<br />Stream Lab</div>
+        <div class="hero-meta">
+          2026 &nbsp;&middot;&nbsp; IoT Research &nbsp;&middot;&nbsp; 6 Protocol
+          Modes
+        </div>
+        <div class="hero-desc">
+          Stream video using 6 different network protocols &mdash; TCP chunked,
+          UDP burst, mixed protocol, throttled TCP, HTTP byte-range, and TCP
+          stress. Each stream generates real Wireshark-capturable traffic.
+        </div>
+        <button
+          class="btn btn-primary"
+          id="heroBtn"
+          onclick="startCurrentStream()"
+        >
+          &#9654;&nbsp; Stream Now
+        </button>
+        <a href="/browse" class="btn btn-secondary" style="margin-left: 10px"
+          >&#128240;&nbsp; Blog</a
+        >
+      </div>
+    </div>
+
+    <div class="player-section">
+      <div class="section-label">Active Stream</div>
+      <div class="stream-panel">
+        <div class="stream-title" id="panelTitle">Select a stream below</div>
+        <div class="stream-sub" id="panelSub">
+          Choose one of the 6 protocol streams to begin
+        </div>
+        <div class="proto-info" id="protoInfo"></div>
+        <video
+          id="player"
+          controls
+          style="
+            width: 100%;
+            border-radius: 6px;
+            background: #000;
+            margin-bottom: 14px;
+            display: none;
+          "
+          preload="none"
+        >
+          Your browser does not support HTML5 video.
+        </video>
+        <div class="progress-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status-row">
+          <span class="badge idle" id="statusBadge">Idle</span>
+          <span id="stats">Select a stream card to begin</span>
+        </div>
+        <div class="ctl-row">
+          <button class="ctl-btn" id="startBtn" onclick="startCurrentStream()">
+            &#9654;&nbsp; Start Stream
+          </button>
+          <button class="ctl-btn" id="stopBtn" onclick="stopStream()">
+            &#9646;&nbsp; Stop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-section">
+      <div class="section-label">Available Streams</div>
+      <div class="grid" id="streamGrid"></div>
+    </div>
+
+    <footer>
+      StreamNet Local Simulator &nbsp;&middot;&nbsp; IoT Network Testing
+      &nbsp;&middot;&nbsp; 2026 &nbsp;&middot;&nbsp;
+      <a href="/browse">TechBlog</a>
+    </footer>
+
+    <script>
+      const STREAMS = [
+        {
+          id: 1,
+          icon: "📡",
+          title: "IoT Traffic Sim",
+          sub: "TCP Chunked Transfer",
+          desc: "Network Traffic Simulation — Episode 1",
+          protocol: "HTTP chunked transfer over TCP — standard IoT streaming",
+          pills: [
+            { l: "TCP", c: "proto-tcp" },
+            { l: "Chunked", c: "proto-tcp" },
+          ],
+          g: "linear-gradient(135deg,#1a1a4e,#0d0d2e)",
+        },
+        {
+          id: 2,
+          icon: "📶",
+          title: "UDP Burst Test",
+          sub: "High-rate UDP Datagrams",
+          desc: "UDP Burst Simulation — Episode 2",
+          protocol: "UDP datagrams every 100 ms alongside HTTP video delivery",
+          pills: [
+            { l: "UDP", c: "proto-udp" },
+            { l: "High-rate", c: "proto-udp" },
+          ],
+          g: "linear-gradient(135deg,#1a3a1a,#0d200d)",
+        },
+        {
+          id: 3,
+          icon: "🌐",
+          title: "Mixed Protocol",
+          sub: "TCP + UDP + ICMP",
+          desc: "Mixed Protocol Stream — Episode 3",
+          protocol:
+            "TCP video + concurrent UDP datagrams + ICMP pings to client",
+          pills: [
+            { l: "TCP", c: "proto-tcp" },
+            { l: "UDP", c: "proto-udp" },
+            { l: "ICMP", c: "proto-mix" },
+          ],
+          g: "linear-gradient(135deg,#3a1a1a,#200d0d)",
+        },
+        {
+          id: 4,
+          icon: "📊",
+          title: "Congestion Test",
+          sub: "Throttled 512 KB/s TCP",
+          desc: "TCP Congestion Simulation — Episode 4",
+          protocol:
+            "TCP rate-limited to 512 KB/s — simulates congestion window",
+          pills: [
+            { l: "TCP", c: "proto-tcp" },
+            { l: "Throttled", c: "proto-rang" },
+          ],
+          g: "linear-gradient(135deg,#2a2a0a,#1a1a05)",
+        },
+        {
+          id: 5,
+          icon: "🔬",
+          title: "ML Training Set",
+          sub: "HTTP 206 Byte-Range",
+          desc: "HTTP Range-Request Stream — Episode 5",
+          protocol:
+            "HTTP 206 Partial Content — byte-range seeking (like video scrubbing)",
+          pills: [
+            { l: "HTTP", c: "proto-tcp" },
+            { l: "206 Range", c: "proto-rang" },
+          ],
+          g: "linear-gradient(135deg,#1a2a3a,#0d1a25)",
+        },
+        {
+          id: 6,
+          icon: "⚡",
+          title: "Stress Test",
+          sub: "Max-Rate TCP · 256 KB chunks",
+          desc: "TCP Stress Test — Episode 6",
+          protocol: "Maximum-rate TCP with 256 KB chunks — no throttling",
+          pills: [
+            { l: "TCP", c: "proto-tcp" },
+            { l: "Max-Rate", c: "proto-udp" },
+          ],
+          g: "linear-gradient(135deg,#3a1a3a,#200d20)",
+        },
+      ];
+
+      let controller = null,
+        streaming = false,
+        currentStream = 1;
+
+      function fmtBytes(b) {
+        if (b < 1024) return b + " B";
+        if (b < 1048576) return (b / 1024).toFixed(1) + " KB";
+        return (b / 1048576).toFixed(2) + " MB";
+      }
+      function setBadge(s, t) {
+        const el = document.getElementById("statusBadge");
+        el.textContent = t;
+        el.className = "badge " + s;
+      }
+      function buildGrid() {
+        document.getElementById("streamGrid").innerHTML = STREAMS.map(
+          (s) =>
+            `<div class="card" id="card-${s.id}" onclick="selectStream(${s.id})">
+            <div class="card-thumb" style="background:${s.g}">${s.icon}</div>
+            <div class="card-info">
+              <div class="card-title">${s.title}</div>
+              <div class="card-sub">${s.sub}</div>
+            </div>
+          </div>`,
+        ).join("");
+      }
+      function selectStream(id) {
+        if (streaming) stopStream();
+        currentStream = id;
+        const s = STREAMS.find((x) => x.id === id);
+        document
+          .querySelectorAll(".card")
+          .forEach((c) => c.classList.remove("active-card"));
+        document.getElementById("card-" + id).classList.add("active-card");
+        document.getElementById("panelTitle").textContent = s.desc;
+        document.getElementById("panelSub").textContent = s.protocol;
+        document.getElementById("protoInfo").innerHTML = s.pills
+          .map((p) => `<span class="proto-pill ${p.c}">${p.l}</span>`)
+          .join("");
+        document.getElementById("progressBar").style.width = "0%";
+        setBadge("idle", "Idle");
+        document.getElementById("stats").textContent =
+          "Click Start Stream to begin";
+      }
+      function startCurrentStream() {
+        startStream(currentStream);
+      }
+
+      function fmtTime(s) {
+        if (!s || isNaN(s) || !isFinite(s)) return "0:00";
+        const m = Math.floor(s / 60),
+          sec = Math.floor(s % 60);
+        return m + ":" + (sec < 10 ? "0" : "") + sec;
+      }
+
+      function startStream(id) {
+        if (streaming) return;
+        streaming = true;
+        currentStream = id;
+        document.getElementById("startBtn").style.display = "none";
+        document.getElementById("stopBtn").style.display = "inline-block";
+        document.getElementById("heroBtn").textContent = "Streaming…";
+        document.getElementById("progressBar").style.width = "0%";
+        document.getElementById("stats").textContent = "Connecting…";
+        setBadge("buffering", "Buffering…");
+        const player = document.getElementById("player");
+        player.src = "/video/" + id;
+        player.style.display = "block";
+        player.load();
+        player.play().catch(function () {});
+      }
+
+      function stopStream() {
+        const player = document.getElementById("player");
+        player.pause();
+        player.removeAttribute("src");
+        player.load();
+        player.style.display = "none";
+        setBadge("stopped", "Stopped");
+        document.getElementById("progressBar").style.width = "0%";
+        document.getElementById("stats").textContent = "Stream stopped.";
+        streaming = false;
+        document.getElementById("startBtn").style.display = "inline-block";
+        document.getElementById("stopBtn").style.display = "none";
+        document.getElementById("heroBtn").textContent = "▶  Stream Now";
+      }
+
+      buildGrid();
+      selectStream(1);
+
+      // Wire HTML5 video element events once on page load
+      (function setupPlayer() {
+        const player = document.getElementById("player");
+        const t = { start: 0 };
+        player.addEventListener("play", function () {
+          t.start = Date.now();
+        });
+        player.addEventListener("waiting", function () {
+          if (streaming) setBadge("buffering", "Buffering…");
+        });
+        player.addEventListener("playing", function () {
+          setBadge("streaming", "Streaming");
+        });
+        player.addEventListener("timeupdate", function () {
+          if (!player.duration) return;
+          const pct = Math.min(
+            (player.currentTime / player.duration) * 100,
+            100,
+          ).toFixed(1);
+          const elapsed = ((Date.now() - t.start) / 1000).toFixed(1);
+          document.getElementById("progressBar").style.width = pct + "%";
+          document.getElementById("stats").textContent =
+            fmtTime(player.currentTime) +
+            " / " +
+            fmtTime(player.duration) +
+            "  ·  " +
+            elapsed +
+            "s elapsed";
+        });
+        player.addEventListener("ended", function () {
+          setBadge("done", "Complete");
+          document.getElementById("progressBar").style.width = "100%";
+          document.getElementById("stats").textContent =
+            fmtTime(player.duration) + " — finished";
+          streaming = false;
+          document.getElementById("startBtn").style.display = "inline-block";
+          document.getElementById("stopBtn").style.display = "none";
+          document.getElementById("heroBtn").textContent = "▶  Stream Now";
+        });
+        player.addEventListener("error", function () {
+          if (!streaming) return;
+          setBadge("stopped", "Error");
+          const e = player.error;
+          document.getElementById("stats").textContent =
+            "Stream error" + (e ? ": " + e.message : ".");
+          streaming = false;
+          document.getElementById("startBtn").style.display = "inline-block";
+          document.getElementById("stopBtn").style.display = "none";
+          document.getElementById("heroBtn").textContent = "▶  Stream Now";
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "upstream_ssid": "YOUR_MIFI_SSID",
+  "upstream_password": "YOUR_MIFI_PASSWORD",
+  "ap_ssid": "IoT-Lab-Gateway",
+  "ap_password": "REPLACE_WITH_A_LAB_PASSWORD",
+  "snmp_community": "REPLACE_WITH_A_RANDOM_COMMUNITY",
+  "control_token": "",
+  "server_ip": "192.168.8.100",
+  "collector_ip": "192.168.8.100",
+  "ap_ip": "192.168.50.1"
+}

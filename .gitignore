@@ -1,0 +1,63 @@
+# Local environments and developer tooling
+.tools/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+Thumbs.db
+
+# Credentials and generated machine configuration
+.env
+.env.*
+!.env.example
+*.local.h
+*.local.json
+firmware/esp32_gateway/sdkconfig*
+!firmware/esp32_gateway/sdkconfig.defaults
+
+# Rebuildable outputs
+.pio/
+firmware/esp32_gateway/build/
+build/
+dist/
+*.obj
+*.o
+*.dll
+*.so
+*.lib
+*.pdb
+*.elf
+*.bin
+
+# Private experiment data and trained artifacts
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.pcap
+*.pcapng
+*.pkl
+datasets/*.csv
+datasets/model_insights.txt
+datasets/window_model/
+datasets/runs/
+datasets/control.jsonl
+server/video_log.csv
+
+# Large local workload assets and original research documents
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.docx
+short notes.txt
+
+# Machine-specific housekeeping and QA records
+reports/cleanup_manifest.json
+reports/github_cleanup.json
+reports/report_quality_check.json
+reports/cleanup_candidates.md
+artifacts/
+tmp/

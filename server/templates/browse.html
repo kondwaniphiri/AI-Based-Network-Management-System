@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechBlog – IoT Network Research</title>
+    <style>
+      /* ── Reset & base ─────────────────────────────────────────── */
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #f4f4f6;
+        color: #1a1a2e;
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.65;
+      }
+
+      /* ── Header ──────────────────────────────────────────────── */
+      header {
+        background: #fff;
+        border-bottom: 3px solid #e50914;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+      }
+      .header-inner {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 24px;
+      }
+      .logo {
+        font-size: 22px;
+        font-weight: 900;
+        color: #1a1a2e;
+        letter-spacing: -0.5px;
+      }
+      .logo span {
+        color: #e50914;
+      }
+      .logo small {
+        font-size: 12px;
+        color: #888;
+        font-weight: 400;
+        margin-left: 6px;
+      }
+      .nav-links a {
+        color: #555;
+        text-decoration: none;
+        font-size: 14px;
+        margin-left: 24px;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: #e50914;
+      }
+      .nav-links a.stream {
+        color: #e50914;
+        font-weight: 700;
+      }
+
+      /* ── Page container ──────────────────────────────────────── */
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 24px 60px;
+      }
+      .page-header {
+        margin-bottom: 36px;
+      }
+      .page-title {
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+      .page-sub {
+        font-size: 14px;
+        color: #888;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      /* ── Post card ───────────────────────────────────────────── */
+      .post {
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px 34px;
+        margin-bottom: 28px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.07);
+        transition: box-shadow 0.2s;
+      }
+      .post:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .post-tag {
+        display: inline-block;
+        background: #fff0ee;
+        color: #e50914;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 9px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 10px;
+      }
+      .post-title {
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 5px;
+      }
+      .post-date {
+        font-size: 12px;
+        color: #aaa;
+        margin-bottom: 14px;
+      }
+      .post-body {
+        font-size: 15px;
+        color: #444;
+        margin-bottom: 22px;
+      }
+
+      /* ── Actions row ─────────────────────────────────────────── */
+      .post-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+      }
+
+      .like-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: none;
+        border: 1.5px solid #ddd;
+        border-radius: 22px;
+        padding: 6px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #666;
+        transition:
+          border-color 0.2s,
+          color 0.2s,
+          background 0.2s;
+        user-select: none;
+      }
+      .like-btn:hover {
+        border-color: #e50914;
+        color: #e50914;
+      }
+      .like-btn.liked {
+        background: #fff0ee;
+        border-color: #e50914;
+        color: #e50914;
+      }
+      .like-btn .heart {
+        font-size: 15px;
+        transition: transform 0.15s;
+      }
+      .like-btn.liked .heart {
+        transform: scale(1.25);
+      }
+      .like-count {
+        font-weight: 700;
+      }
+
+      .comment-badge {
+        font-size: 13px;
+        color: #999;
+      }
+
+      /* ── Comments section ────────────────────────────────────── */
+      .comments-section {
+        border-top: 1px solid #f0f0f0;
+        padding-top: 18px;
+      }
+      .comments-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        margin-bottom: 14px;
+      }
+      .comment-list {
+        margin-bottom: 18px;
+      }
+
+      .comment-item {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      /* Deterministic avatar colours by first-char code mod 6 */
+      .av-0 {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+      .av-1 {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+      }
+      .av-2 {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+      }
+      .av-3 {
+        background: linear-gradient(135deg, #43e97b, #38f9d7);
+      }
+      .av-4 {
+        background: linear-gradient(135deg, #fa709a, #fee140);
+      }
+      .av-5 {
+        background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+      }
+
+      .comment-body {
+      }
+      .comment-author {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1a1a2e;
+      }
+      .comment-text {
+        font-size: 14px;
+        color: #555;
+        margin-top: 2px;
+      }
+
+      /* ── Comment form ────────────────────────────────────────── */
+      .comment-form {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 16px 18px;
+      }
+      .form-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #888;
+        margin-bottom: 10px;
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .form-input,
+      .form-textarea {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 9px 12px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+        font-family: inherit;
+      }
+      .form-input {
+        flex: 1;
+      }
+      .form-input:focus,
+      .form-textarea:focus {
+        border-color: #e50914;
+      }
+      .form-textarea {
+        width: 100%;
+        resize: vertical;
+        min-height: 72px;
+      }
+      .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+      .submit-btn {
+        background: #e50914;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 22px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+      .submit-btn:hover {
+        background: #c2050f;
+      }
+      .submit-btn:active {
+        transform: scale(0.96);
+      }
+
+      /* ── Sidebar tag cloud ───────────────────────────────────── */
+      .layout {
+        display: flex;
+        gap: 28px;
+        align-items: flex-start;
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+      .sidebar {
+        width: 230px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 80px;
+      }
+      .sidebar-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px 22px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.07);
+      }
+      .sidebar-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        margin-bottom: 12px;
+      }
+      .tag {
+        display: inline-block;
+        background: #f0f0f0;
+        color: #555;
+        font-size: 12px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        margin: 0 4px 6px 0;
+        cursor: default;
+        transition: background 0.2s;
+      }
+      .tag:hover {
+        background: #fff0ee;
+        color: #e50914;
+      }
+
+      .sidebar-stat {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      .sidebar-stat span:last-child {
+        font-weight: 700;
+      }
+
+      /* ── Footer ──────────────────────────────────────────────── */
+      footer {
+        text-align: center;
+        padding: 28px 24px;
+        color: #aaa;
+        font-size: 12px;
+        border-top: 1px solid #e0e0e0;
+      }
+      footer a {
+        color: #e50914;
+        text-decoration: none;
+      }
+
+      /* ── Responsive: hide sidebar on small screens ───────────── */
+      @media (max-width: 720px) {
+        .sidebar {
+          display: none;
+        }
+        nav .nav-links a {
+          margin-left: 14px;
+        }
+        .hero-title {
+          font-size: 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ─── Header ───────────────────────────────────────── -->
+    <header>
+      <div class="header-inner">
+        <div class="logo">Tech<span>Blog</span><small>IoT Research</small></div>
+        <nav class="nav-links">
+          <a href="/browse">Home</a>
+          <a href="#">Topics</a>
+          <a href="#">About</a>
+          <a href="/stream" class="stream">▶ Stream</a>
+          <a href="/dashboard" style="color: #4ade80; font-weight: 700"
+            >📊 Dashboard</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <!-- ─── Main layout ──────────────────────────────────── -->
+    <div class="container">
+      <div class="page-header">
+        <div class="page-title">IoT Network Research</div>
+        <div class="page-sub">
+          Articles on ESP32, Wireshark, TCP/UDP, and AI-based network
+          optimisation.
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- Posts column -->
+        <div class="main">
+          {% for post in posts %}
+          <article class="post" id="post-{{ post.id }}">
+            <span class="post-tag">Networking</span>
+            <div class="post-title">{{ post.title }}</div>
+            <div class="post-date">{{ post.date }}</div>
+            <div class="post-body">{{ post.body }}</div>
+
+            <!-- Like + comment count -->
+            <div class="post-actions">
+              <button
+                class="like-btn"
+                id="like-btn-{{ post.id }}"
+                onclick="likePost({{ post.id }}, this)"
+                title="Like this post"
+              >
+                <span class="heart">♥</span>
+                <span class="like-count" id="like-count-{{ post.id }}"
+                  >{{ post.likes }}</span
+                >
+              </button>
+              <span class="comment-badge" id="comment-badge-{{ post.id }}">
+                💬 {{ post.comments | length }} comment{{ 's' if post.comments |
+                length != 1 }}
+              </span>
+            </div>
+
+            <!-- Comments & form -->
+            <div class="comments-section">
+              <div class="comments-label">Comments</div>
+              <div class="comment-list" id="comments-list-{{ post.id }}">
+                {% for c in post.comments %}
+                <div class="comment-item">
+                  <div class="avatar av-{{ c.author | length % 6 }}">
+                    {{ c.author[0] | upper }}
+                  </div>
+                  <div class="comment-body">
+                    <div class="comment-author">{{ c.author }}</div>
+                    <div class="comment-text">{{ c.text }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+
+              <form
+                class="comment-form"
+                onsubmit="return submitComment(event, {{ post.id }});"
+              >
+                <div class="form-title">Leave a comment</div>
+                <div class="form-row">
+                  <input
+                    class="form-input"
+                    type="text"
+                    id="author-{{ post.id }}"
+                    placeholder="Your name"
+                    maxlength="50"
+                    required
+                  />
+                </div>
+                <textarea
+                  class="form-textarea"
+                  id="text-{{ post.id }}"
+                  placeholder="Write your thoughts…"
+                  maxlength="500"
+                  required
+                ></textarea>
+                <div class="form-footer">
+                  <button type="submit" class="submit-btn">Post Comment</button>
+                </div>
+              </form>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        <!-- /main -->
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-title">Topics</div>
+            <span class="tag">ESP32</span>
+            <span class="tag">Wireshark</span>
+            <span class="tag">TCP/IP</span>
+            <span class="tag">UDP</span>
+            <span class="tag">IoT</span>
+            <span class="tag">Machine Learning</span>
+            <span class="tag">ICMP</span>
+            <span class="tag">Flask</span>
+            <span class="tag">Network</span>
+            <span class="tag">Python</span>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-title">Live Stats</div>
+            <div class="sidebar-stat">
+              <span>Posts</span> <span>{{ posts | length }}</span>
+            </div>
+            <div class="sidebar-stat">
+              <span>Devices</span> <span>3 ESP32</span>
+            </div>
+            <div class="sidebar-stat">
+              <span>Protocols</span><span>TCP · UDP · ICMP</span>
+            </div>
+            <div class="sidebar-stat">
+              <span>Server</span> <span>192.168.0.100</span>
+            </div>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-title">Quick Links</div>
+            <a
+              href="/stream"
+              style="
+                display: block;
+                color: #e50914;
+                font-size: 14px;
+                font-weight: 700;
+                text-decoration: none;
+                margin-bottom: 8px;
+              "
+              >▶ Video Stream</a
+            >
+            <a
+              href="/packets"
+              style="
+                display: block;
+                color: #555;
+                font-size: 13px;
+                text-decoration: none;
+                margin-bottom: 6px;
+              "
+              >🔍 HTTP Log</a
+            >
+            <a
+              href="/udp-log"
+              style="
+                display: block;
+                color: #555;
+                font-size: 13px;
+                text-decoration: none;
+              "
+              >🔍 UDP Log</a
+            >
+          </div>
+        </aside>
+      </div>
+      <!-- /layout -->
+    </div>
+    <!-- /container -->
+
+    <footer>
+      TechBlog &nbsp;·&nbsp; IoT Network Testing System &nbsp;·&nbsp; 2026
+      &nbsp;·&nbsp; <a href="/stream">▶ Video Stream</a>
+    </footer>
+
+    <script>
+      // ── Avatar colour helper (mirrors Jinja2 logic for JS-rendered comments) ──
+      function avClass(author) {
+        return "av-" + (author.length % 6);
+      }
+
+      // ── HTML escape to prevent XSS when inserting user content via innerHTML ──
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#x27;");
+      }
+
+      // ── Track liked posts for the current browser session ──────────────────
+      const likedPosts = {};
+
+      async function likePost(postId, btn) {
+        if (likedPosts[postId]) return; // already liked in this session
+        likedPosts[postId] = true;
+        btn.classList.add("liked");
+
+        try {
+          const resp = await fetch(`/api/like/${postId}`, { method: "POST" });
+          if (!resp.ok) throw new Error(`Server returned ${resp.status}`);
+          const data = await resp.json();
+          if (typeof data.likes === "number") {
+            document.getElementById(`like-count-${postId}`).textContent =
+              data.likes;
+          }
+        } catch {
+          // Network or server error — revert optimistic update
+          likedPosts[postId] = false;
+          btn.classList.remove("liked");
+        }
+      }
+
+      // ── Submit a new comment ────────────────────────────────────────────────
+      async function submitComment(event, postId) {
+        event.preventDefault();
+        const authorEl = document.getElementById(`author-${postId}`);
+        const textEl = document.getElementById(`text-${postId}`);
+        const author = authorEl.value.trim();
+        const text = textEl.value.trim();
+        if (!author || !text) return false;
+
+        try {
+          const resp = await fetch(`/api/comment/${postId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ author, text }),
+          });
+          const data = await resp.json();
+          if (data.comments) {
+            renderComments(postId, data.comments);
+            authorEl.value = "";
+            textEl.value = "";
+          }
+        } catch {
+          alert("Could not post comment. Is the server running?");
+        }
+        return false;
+      }
+
+      // ── Re-render the full comment list for a post ──────────────────────────
+      function renderComments(postId, comments) {
+        const list = document.getElementById(`comments-list-${postId}`);
+        const badge = document.getElementById(`comment-badge-${postId}`);
+
+        list.innerHTML = comments
+          .map(
+            (c) => `
+      <div class="comment-item">
+        <div class="avatar ${avClass(c.author)}">${esc(c.author.charAt(0)).toUpperCase()}</div>
+        <div class="comment-body">
+          <div class="comment-author">${esc(c.author)}</div>
+          <div class="comment-text">${esc(c.text)}</div>
+        </div>
+      </div>
+    `,
+          )
+          .join("");
+
+        const n = comments.length;
+        badge.textContent = `💬 ${n} comment${n === 1 ? "" : "s"}`;
+      }
+    </script>
+  </body>
+</html>

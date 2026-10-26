@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network monitor · IoT lab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <script defer src="{{ url_for('static', filename='chart.umd.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner">
+    <a class="brand" href="/dashboard"><span class="brand-mark" aria-hidden="true"></span>IoT lab</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="/dashboard" aria-current="page">Monitor</a><a href="/stream">Streaming</a><a href="/browse">Browsing</a>
+    </nav>
+    <div class="connection" id="connection" data-state="connecting" role="status"><span class="dot" aria-hidden="true"></span><span id="connection-label">Connecting to server</span></div>
+  </div></header>
+  <main>
+    <div class="page-heading">
+      <div><p class="eyebrow">Network experiment</p><h1>Network monitor</h1>
+        <p class="subtitle">Device traffic, delivery and gateway measurements.</p>
+        <div class="metadata"><span>Run <strong class="mono" id="run-id">—</strong></span><span>Server uptime <strong class="mono" id="uptime">—</strong></span><span>Updated <strong class="mono" id="updated">—</strong></span></div>
+      </div>
+      <div class="heading-actions"><button id="pause" type="button" aria-pressed="false">Pause updates</button><a class="button primary" id="export-events" href="/api/telemetry/export">Export observations <span aria-hidden="true">↓</span></a></div>
+    </div>
+    <div class="alert" id="connection-error" role="alert" hidden>Server unavailable. The last received values are shown; updates will retry automatically.</div>
+    <div class="alert" id="impairment-notice" hidden></div>
+    <section class="summary" aria-label="Session overview">
+      <div class="summary-item"><p class="summary-label" id="online-label">Online endpoints</p><div class="summary-value" id="total-online">—</div><p class="summary-note" id="online-note">Configured sensors and observed clients</p></div>
+      <div class="summary-item"><p class="summary-label">Sensor messages</p><div class="summary-value mono" id="total-messages">—</div><p class="summary-note">HTTP and UDP received since server start</p></div>
+      <div class="summary-item"><p class="summary-label">Recorded traffic</p><div class="summary-value mono" id="total-bytes">—</div><p class="summary-note">Sensor input and client transfers</p></div>
+      <div class="summary-item"><p class="summary-label">Application discards</p><div class="summary-value mono" id="total-discards">—</div><p class="summary-note">Explicit server-side impairment only</p></div>
+    </section>
+    <div class="workspace">
+      <section class="panel" aria-labelledby="traffic-title">
+        <div class="panel-head chart-head"><div><h2 id="traffic-title">Sensor traffic</h2><p id="chart-subtitle">Received messages per second · last 30 seconds · UTC</p></div>
+          <div class="tabs" role="group" aria-label="Chart measurement"><button class="tab" data-chart="traffic" aria-pressed="true">Traffic</button><button class="tab" data-chart="rtt" aria-pressed="false">RTT</button><button class="tab" data-chart="loss" aria-pressed="false">Delivery gaps</button></div>
+        </div>
+        <div class="chart-body"><div class="chart-wrap"><canvas id="traffic-chart" role="img" aria-label="Live sensor traffic chart"></canvas><p id="chart-unavailable" class="chart-unavailable" hidden>Chart unavailable. Current measurements remain available in the device table.</p></div><div class="chart-foot"><p class="chart-caption" id="chart-caption">HTTP and UDP messages received from each sensor. Phone stream chunks are excluded.</p><button type="button" id="save-chart" disabled>Save PNG</button></div></div>
+      </section>
+      <aside class="panel" aria-labelledby="gateway-title">
+        <div class="panel-head"><h2 id="gateway-title">Gateway</h2><span id="gateway-status" class="status">No agent data</span></div>
+        <div class="gateway-body"><p class="gateway-name">ESP32 gateway</p><p id="gateway-address" class="gateway-address mono">Address not configured</p>
+          <p class="gateway-note" id="gateway-note">Router measurements will appear when the gateway SNMP agent and collector are running.</p>
+          <dl class="definition"><div><dt>SNMP sample</dt><dd class="mono" id="gateway-sample">—</dd></div><div><dt>Interface</dt><dd class="mono" id="gateway-interface">—</dd></div><div><dt>Inbound</dt><dd class="mono" id="gateway-in">—</dd></div><div><dt>Outbound</dt><dd class="mono" id="gateway-out">—</dd></div><div><dt>Reported utilization</dt><dd class="mono" id="gateway-utilization">—</dd></div></dl>
+          <p class="gateway-footer">Counters describe the selected gateway interface. Missing values are not zero.</p>
+        </div>
+      </aside>
+    </div>
+    <section class="panel table-panel" aria-labelledby="devices-title">
+      <div class="panel-head"><div><h2 id="devices-title">Devices</h2><p id="devices-count">Waiting for server</p></div><span class="muted mono" id="server-address"></span></div>
+      <div class="table-scroll"><table><thead><tr><th scope="col">Node</th><th scope="col">Address</th><th scope="col">Status</th><th scope="col">Transport</th><th scope="col" class="numeric">Messages / requests</th><th scope="col" class="numeric">Traffic</th><th scope="col" class="numeric" id="rtt-heading">Probe RTT</th><th scope="col" class="numeric">UDP gaps</th></tr></thead><tbody id="device-rows"><tr><td colspan="8" class="empty-row">Waiting for device observations.</td></tr></tbody></table></div>
+      <p class="table-note" id="measurement-note">Sensor traffic is received data; client traffic is served data. UDP gaps are cumulative missing sequence numbers between observed messages, not measured radio loss.</p>
+    </section>
+    <div class="lower">
+      <section class="panel" aria-labelledby="activity-title"><div class="panel-head"><h2 id="activity-title">Activity</h2><span class="muted" style="font-size:11px">Newest first · UTC</span></div><ol class="event-list" id="activity"><li class="empty">No traffic recorded yet. Activity will appear as devices send data.</li></ol></section>
+      <section class="panel" aria-labelledby="records-title"><div class="panel-head"><h2 id="records-title">Experiment records</h2></div><div class="data-body"><p>Download observations for analysis. These exports contain recorded data, including explicit application discards.</p><div class="download-list"><a id="delivery-link" href="/api/delivery" target="_blank" rel="noopener">Delivery summary <span>JSON ↗</span></a><a href="/api/metrics/export">Stream measurements <span>CSV ↓</span></a><a href="/api/export/sqlite" target="_blank" rel="noopener">Stored metrics <span>JSON ↗</span></a></div></div></section>
+    </div>
+    <details class="archive" id="archive"><summary>Saved experiment plots</summary><div class="archive-content"><div class="archive-toolbar"><p id="archive-status">Saved plots are separate from the live measurements above.</p><button type="button" id="reload-plots">Refresh plots</button></div><div class="saved-plots" id="saved-plots"></div></div></details>
+    <footer class="footer"><span>IoT network experiment · local monitoring</span><span>Refresh every second · — indicates no measurement</span></footer>
+  </main>
+</body>
+</html>

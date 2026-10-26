@@ -149,7 +149,7 @@ def decorate(canvas,doc):
     canvas.saveState()
     if doc.page>1:
         canvas.setFont('Helvetica',7.7);canvas.setFillColor(MUTED)
-        canvas.drawString(48,PAGE_H-29,'ESP32 IoT Network Monitoring and Traffic Control')
+        canvas.drawString(48,PAGE_H-29,'AI-Based Network Management System')
         canvas.drawRightString(PAGE_W-48,PAGE_H-29,'Requirements and SDLC')
         canvas.setStrokeColor(LINE);canvas.setLineWidth(.5);canvas.line(48,PAGE_H-36,PAGE_W-48,PAGE_H-36)
     canvas.setFont('Helvetica',7.5);canvas.setFillColor(MUTED)
@@ -158,7 +158,7 @@ def decorate(canvas,doc):
     canvas.restoreState()
 
 SimpleDocTemplate(str(OUTPUT),pagesize=A4,rightMargin=48,leftMargin=48,topMargin=52,bottomMargin=43,
-    title='ESP32 IoT Network Monitoring and Traffic Control Software Process Report',
+    title='AI-Based Network Management System Software Process Report',
     author='Project documentation',subject='Requirements architecture SDLC and verification').build(story,onFirstPage=decorate,onLaterPages=decorate)
 pdf=pymupdf.open(OUTPUT)
 page_meta=[]

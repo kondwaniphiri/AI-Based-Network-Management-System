@@ -1,4 +1,4 @@
-# ESP32 IoT Network Monitor
+# AI-Based Network Management System
 
 SNMP-based monitoring and predictive traffic control for an experimental ESP32 IoT network.
 

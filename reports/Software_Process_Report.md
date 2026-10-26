@@ -1,4 +1,4 @@
-# ESP32 IoT Network Monitoring and Traffic Control
+# AI-Based Network Management System
 
 Software Requirements and Development Lifecycle Report
 
